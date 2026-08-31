@@ -1,0 +1,12 @@
+services:
+  fuji:
+    image: ghcr.io/pangaea-data-publisher/fuji:latest
+    container_name: ethical-analyser-fuji
+    restart: unless-stopped
+
+    ports:
+      - "127.0.0.1:1071:1071"
+
+    environment:
+      ENABLE_CORS: "true"
+      TIKA_LOG_PATH: "/tmp"

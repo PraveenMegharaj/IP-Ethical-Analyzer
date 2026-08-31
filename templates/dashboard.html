@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Ethical Analyser</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='dashboard.css') }}"
+    >
+</head>
+
+<body>
+    <main class="page-shell">
+        <header class="topbar">
+            <div class="brand">
+                <div class="logo">
+                    EA
+                </div>
+
+                <div>
+                    <h1>
+                        Ethical Analyser
+                    </h1>
+
+                    <p>
+                        Trust, FAIRness and responsible reuse
+                    </p>
+                </div>
+            </div>
+
+            <nav
+                class="main-tabs"
+                aria-label="Dashboard sections"
+            >
+                <button
+                    class="main-tab active"
+                    data-tab="analyse"
+                    type="button"
+                >
+                    Analyse
+                </button>
+
+                <button
+                    class="main-tab"
+                    data-tab="reuse"
+                    type="button"
+                >
+                    Reuse Advisor
+                </button>
+
+                <button
+                    class="main-tab"
+                    data-tab="checklist"
+                    type="button"
+                >
+                    FAIR-R²L Checklist
+                </button>
+            </nav>
+        </header>
+
+        <section
+            id="analyseTab"
+            class="tab-panel active"
+        >
+            <section class="intro-card">
+                <div>
+                    <span class="eyebrow">
+                        Analyse
+                    </span>
+
+                    <h2>
+                        Paste text, a DOI or a repository link
+                    </h2>
+
+                    <p>
+                        The overview stays simple. Technical
+                        evidence is available under each
+                        information section.
+                    </p>
+                </div>
+
+                <form
+                    id="analysisForm"
+                    class="analysis-form"
+                >
+                    <textarea
+                        id="analysisInput"
+                        placeholder="Paste AI text, DOI or resource URL..."
+                        required
+                    ></textarea>
+
+                    <div class="form-row">
+                        <select
+                            id="userRole"
+                            aria-label="Reuse perspective"
+                        >
+                            <option value="reuser">
+                                I want to reuse a resource
+                            </option>
+
+                            <option value="producer">
+                                I created the resource
+                            </option>
+                        </select>
+
+                        <button
+                            class="primary-button"
+                            type="submit"
+                        >
+                            Analyse
+                        </button>
+                    </div>
+
+                    <details class="optional-inputs">
+                        <summary>
+                            Add source links
+                        </summary>
+
+                        <textarea
+                            id="sourceLinks"
+                            class="small-textarea"
+                            placeholder="One source URL per line"
+                        ></textarea>
+                    </details>
+                </form>
+            </section>
+
+            <section
+                id="loadingPanel"
+                class="state-card hidden"
+            >
+                <div class="spinner"></div>
+
+                <div>
+                    <strong>
+                        Analysing...
+                    </strong>
+
+                    <p>
+                        This may take longer when F-UJI is running.
+                    </p>
+                </div>
+            </section>
+
+            <section
+                id="errorPanel"
+                class="state-card error hidden"
+            >
+                <strong>
+                    Analysis failed
+                </strong>
+
+                <p id="errorMessage"></p>
+            </section>
+
+            <section
+                id="emptyPanel"
+                class="empty-card"
+            >
+                <div class="empty-icon">
+                    EA
+                </div>
+
+                <h2>
+                    No analysis yet
+                </h2>
+
+                <p>
+                    Enter text or a research-resource link above.
+                </p>
+            </section>
+
+            <section
+                id="resultsArea"
+                class="hidden"
+            >
+                <div class="section-title">
+                    <div>
+                        <span class="eyebrow">
+                            Overview
+                        </span>
+
+                        <h2>
+                            What the assessment found
+                        </h2>
+                    </div>
+                </div>
+
+                <div
+                    id="overviewGrid"
+                    class="overview-grid"
+                ></div>
+
+                <section
+                    id="warningSection"
+                    class="warning-section hidden"
+                >
+                    <h3>
+                        Important points
+                    </h3>
+
+                    <div id="warningList"></div>
+                </section>
+
+                <section
+                    id="detailsPanel"
+                    class="details-panel hidden"
+                ></section>
+            </section>
+        </section>
+
+        <section
+            id="reuseTab"
+            class="tab-panel"
+        >
+            <section class="intro-card compact">
+                <div>
+                    <span class="eyebrow">
+                        Reuse Advisor
+                    </span>
+
+                    <h2>
+                        Understand what you may do next
+                    </h2>
+
+                    <p>
+                        Review an analysed resource or plan
+                        how to publish a new one.
+                    </p>
+                </div>
+            </section>
+
+            <nav
+                class="sub-tabs"
+                aria-label="Reuse Advisor modes"
+            >
+                <button
+                    class="sub-tab active"
+                    data-reuse-view="reviewer"
+                    type="button"
+                >
+                    Reviewer
+                </button>
+
+                <button
+                    class="sub-tab"
+                    data-reuse-view="brainstormer"
+                    type="button"
+                >
+                    Brainstormer
+                </button>
+            </nav>
+
+            <section
+                id="reviewerView"
+                class="reuse-view active"
+            >
+                <div
+                    id="reviewerContent"
+                    class="content-card"
+                ></div>
+            </section>
+
+            <section
+                id="brainstormerView"
+                class="reuse-view"
+            >
+                <div class="content-card">
+                    <span class="eyebrow">
+                        Creator support
+                    </span>
+
+                    <h2>
+                        Describe what you want to share
+                    </h2>
+
+                    <textarea
+                        id="brainstormDescription"
+                        placeholder="Example: I created a dataset and Python code and want to publish them for research reuse."
+                    ></textarea>
+
+                    <div class="button-row">
+                        <button
+                            id="clarifyBrainstormBtn"
+                            class="secondary-button"
+                            type="button"
+                        >
+                            Ask useful questions
+                        </button>
+
+                        <button
+                            id="generateStrategyBtn"
+                            class="primary-button fit"
+                            type="button"
+                        >
+                            Create sharing plan
+                        </button>
+                    </div>
+
+                    <div id="brainstormQuestions"></div>
+                    <div id="brainstormResult"></div>
+                </div>
+            </section>
+        </section>
+
+        <section
+            id="checklistTab"
+            class="tab-panel"
+        >
+            <section class="intro-card compact">
+                <div>
+                    <span class="eyebrow">
+                        FAIR-R²L Checklist
+                    </span>
+
+                    <h2>
+                        Confirm the evidence and complete the review
+                    </h2>
+
+                    <p>
+                        System suggestions save time. You remain
+                        responsible for the final answers.
+                    </p>
+                </div>
+            </section>
+
+            <section
+                id="checklistContent"
+                class="content-card"
+            ></section>
+        </section>
+
+        <footer>
+            Automated guidance only. Factual, legal, ethical
+            and institutional review may still be required.
+        </footer>
+    </main>
+
+    <script
+        src="{{ url_for('static', filename='dashboard.js') }}"
+    ></script>
+</body>
+
+</html>

@@ -1,0 +1,374 @@
+{
+  "version": "2.0-prototype",
+  "title": "FAIR-R²L Checklist",
+  "description": "A guided assessment for FAIRness, AI readiness and responsible licensing.",
+  "method_note": "The IP4OS checklist does not define an official scoring algorithm. This prototype uses transparent equal-weight readiness and completion calculations.",
+  "sections": [
+    {
+      "id": "findable",
+      "title": "Findable",
+      "short_description": "Can people and machines identify and discover the dataset?",
+      "questions": [
+        {
+          "id": "F1",
+          "text": "Does the dataset have a persistent identifier such as a DOI?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Assign a DOI or another persistent identifier.",
+          "evidence_hint": "Provide the DOI, Handle or another persistent identifier."
+        },
+        {
+          "id": "F2_TITLE",
+          "text": "Does the dataset have a clear title?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Add a concise, descriptive title.",
+          "evidence_hint": "Provide the dataset title."
+        },
+        {
+          "id": "F2_CREATORS",
+          "text": "Are the creators or responsible organisations named?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Add creator or organisation information.",
+          "evidence_hint": "Provide creator names or responsible organisations."
+        },
+        {
+          "id": "F2_KEYWORDS",
+          "text": "Are useful keywords or subjects provided?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Add keywords that help others discover the dataset.",
+          "evidence_hint": "List relevant keywords or subject terms."
+        },
+        {
+          "id": "F4",
+          "text": "Is the dataset registered in a searchable repository?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Publish the dataset in a searchable repository.",
+          "evidence_hint": "Provide the repository name or landing-page URL."
+        }
+      ]
+    },
+    {
+      "id": "accessible",
+      "title": "Accessible",
+      "short_description": "Can users retrieve the dataset or understand how to request access?",
+      "questions": [
+        {
+          "id": "A1",
+          "text": "Can the dataset or its metadata be retrieved?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Provide a stable and retrievable landing page.",
+          "evidence_hint": "Provide the dataset or metadata URL."
+        },
+        {
+          "id": "A1_PROTOCOL",
+          "text": "Is a standard access method such as HTTPS used?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Use a standard retrieval protocol such as HTTPS.",
+          "evidence_hint": "Provide the access URL or protocol."
+        },
+        {
+          "id": "A1_CONDITIONS",
+          "text": "Are the access conditions clearly stated?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "State whether access is open, restricted, controlled or embargoed.",
+          "evidence_hint": "Describe the access conditions."
+        },
+        {
+          "id": "A2",
+          "text": "Is machine-readable metadata available?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Expose metadata through a repository API or standard metadata endpoint.",
+          "evidence_hint": "Provide the metadata endpoint or repository API."
+        },
+        {
+          "id": "A_RESTRICTED",
+          "text": "If access is restricted, is the request procedure explained?",
+          "type": "manual",
+          "assessment_mode": "manual",
+          "critical": true,
+          "recommendation": "Explain who may request access and how approval works.",
+          "evidence_hint": "Describe the access request and approval process."
+        }
+      ]
+    },
+    {
+      "id": "interoperable",
+      "title": "Interoperable",
+      "short_description": "Can the metadata and files work with other systems and standards?",
+      "questions": [
+        {
+          "id": "I1",
+          "text": "Is the metadata machine-readable?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Provide metadata in a machine-readable format.",
+          "evidence_hint": "Provide the metadata format or endpoint."
+        },
+        {
+          "id": "I2",
+          "text": "Are controlled vocabularies or standard terms used?",
+          "type": "suggested",
+          "assessment_mode": "assisted",
+          "critical": false,
+          "recommendation": "Use documented vocabularies or controlled terms.",
+          "evidence_hint": "Name the vocabulary, ontology or terminology used."
+        },
+        {
+          "id": "I_CREATOR_IDS",
+          "text": "Are persistent creator identifiers such as ORCID provided?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Add ORCID or another persistent creator identifier.",
+          "evidence_hint": "Provide creator identifiers."
+        },
+        {
+          "id": "I3",
+          "text": "Are related datasets, papers or software linked?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Add qualified links to related resources.",
+          "evidence_hint": "Provide related identifiers or URLs."
+        },
+        {
+          "id": "I_FORMATS",
+          "text": "Are the file formats clearly documented?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Document file formats and MIME types.",
+          "evidence_hint": "List the files and their formats."
+        }
+      ]
+    },
+    {
+      "id": "reusable",
+      "title": "Reusable",
+      "short_description": "Is enough context available to understand and reuse the dataset correctly?",
+      "questions": [
+        {
+          "id": "R1_LICENSE",
+          "text": "Is a clear reuse licence provided?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Add a clear and recognised reuse licence.",
+          "evidence_hint": "Provide the licence name or SPDX identifier."
+        },
+        {
+          "id": "R1_PROVENANCE",
+          "text": "Is the dataset's origin or provenance documented?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Document who created the dataset, how and from which sources.",
+          "evidence_hint": "Provide provenance, publisher or funding information."
+        },
+        {
+          "id": "R1_VERSION",
+          "text": "Is a version or release date provided?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Add version and release information.",
+          "evidence_hint": "Provide the version or release date."
+        },
+        {
+          "id": "R1_DESCRIPTION",
+          "text": "Is there a useful description or README?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Add a README or detailed description.",
+          "evidence_hint": "Provide the README or dataset description."
+        },
+        {
+          "id": "R1_LIMITATIONS",
+          "text": "Are limitations and intended uses documented?",
+          "type": "manual",
+          "assessment_mode": "assisted",
+          "critical": false,
+          "recommendation": "Document known limitations, suitable uses and unsuitable uses.",
+          "evidence_hint": "Point to a limitations or intended-use section."
+        },
+        {
+          "id": "R1_STANDARDS",
+          "text": "Does the dataset follow relevant community standards?",
+          "type": "manual",
+          "assessment_mode": "assisted",
+          "critical": false,
+          "recommendation": "Identify relevant disciplinary standards, schemas or conventions.",
+          "evidence_hint": "Name the standard, schema or community convention."
+        }
+      ]
+    },
+    {
+      "id": "ai_readiness",
+      "title": "AI Readiness",
+      "short_description": "Can the dataset be interpreted and used responsibly in AI workflows?",
+      "questions": [
+        {
+          "id": "AI_MACHINE_READABLE",
+          "text": "Can the dataset or metadata be processed programmatically?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Provide machine-readable metadata and files.",
+          "evidence_hint": "Provide the machine-readable format or endpoint."
+        },
+        {
+          "id": "AI_FORMAT",
+          "text": "Are the files suitable for automated processing?",
+          "type": "suggested",
+          "assessment_mode": "assisted",
+          "critical": false,
+          "recommendation": "Provide files in documented, machine-processable formats.",
+          "evidence_hint": "List formats such as CSV, JSON, Parquet or XML."
+        },
+        {
+          "id": "AI_DOCUMENTATION",
+          "text": "Is there enough documentation to interpret the dataset?",
+          "type": "suggested",
+          "assessment_mode": "assisted",
+          "critical": false,
+          "recommendation": "Add a README explaining the dataset and intended use.",
+          "evidence_hint": "Provide the README or documentation URL."
+        },
+        {
+          "id": "AI_SCHEMA",
+          "text": "Are fields, labels and variables explained?",
+          "type": "manual",
+          "assessment_mode": "assisted",
+          "critical": false,
+          "recommendation": "Add a data dictionary, schema or codebook.",
+          "evidence_hint": "Provide the data dictionary or schema."
+        },
+        {
+          "id": "AI_QUALITY",
+          "text": "Are quality checks or validation procedures documented?",
+          "type": "manual",
+          "assessment_mode": "assisted",
+          "critical": false,
+          "recommendation": "Document validation, cleaning and quality-control steps.",
+          "evidence_hint": "Describe quality checks and validation results."
+        },
+        {
+          "id": "AI_BIAS",
+          "text": "Are bias, representativeness or coverage limits documented?",
+          "type": "manual",
+          "assessment_mode": "assisted",
+          "critical": false,
+          "recommendation": "Document representativeness, exclusions and known bias.",
+          "evidence_hint": "Provide a bias or representativeness statement."
+        },
+        {
+          "id": "AI_UPDATE",
+          "text": "Is the current version or update status clear?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "State the current version and update date.",
+          "evidence_hint": "Provide the version or update date."
+        }
+      ]
+    },
+    {
+      "id": "responsible_licensing",
+      "title": "Responsible Licensing",
+      "short_description": "Are permissions, rights and possible harms clear enough for responsible reuse?",
+      "questions": [
+        {
+          "id": "RL_LICENSE",
+          "text": "Is the licence recognised and understandable?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": true,
+          "recommendation": "Use a recognised licence and state it clearly.",
+          "evidence_hint": "Provide the licence name or SPDX identifier."
+        },
+        {
+          "id": "RL_ATTRIBUTION",
+          "text": "Are attribution requirements clear?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "State how the dataset should be credited.",
+          "evidence_hint": "Provide citation or attribution instructions."
+        },
+        {
+          "id": "RL_COMMERCIAL",
+          "text": "Are commercial-use conditions clear?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Clarify whether commercial reuse is allowed.",
+          "evidence_hint": "State the commercial-use condition."
+        },
+        {
+          "id": "RL_ADAPTATION",
+          "text": "Are adaptation conditions clear?",
+          "type": "automatic",
+          "assessment_mode": "automatic_with_confirmation",
+          "critical": false,
+          "recommendation": "Clarify whether adaptations and derivatives are allowed.",
+          "evidence_hint": "State the adaptation condition."
+        },
+        {
+          "id": "RL_AI_PERMISSION",
+          "text": "Has permission for the intended AI use been confirmed?",
+          "type": "manual",
+          "assessment_mode": "manual",
+          "critical": true,
+          "recommendation": "Confirm that the intended AI use is permitted by all relevant rights and terms.",
+          "evidence_hint": "Describe the intended AI use and permission basis."
+        },
+        {
+          "id": "RL_PERSONAL_DATA",
+          "text": "Has the dataset been checked for personal or sensitive data?",
+          "type": "manual",
+          "assessment_mode": "manual",
+          "critical": true,
+          "recommendation": "Complete a privacy and sensitive-data review before reuse.",
+          "evidence_hint": "Describe consent, anonymisation or the privacy review."
+        },
+        {
+          "id": "RL_CONTRACTS",
+          "text": "Have third-party rights and contractual restrictions been reviewed?",
+          "type": "manual",
+          "assessment_mode": "manual",
+          "critical": true,
+          "recommendation": "Review contracts, database rights and third-party content.",
+          "evidence_hint": "Describe the rights and contract review."
+        },
+        {
+          "id": "RL_MISUSE",
+          "text": "Have foreseeable misuse and harmful-use risks been considered?",
+          "type": "manual",
+          "assessment_mode": "manual",
+          "critical": false,
+          "recommendation": "Document foreseeable misuse and suitable safeguards.",
+          "evidence_hint": "Describe misuse risks and mitigation measures."
+        }
+      ]
+    }
+  ]
+}
