@@ -20,6 +20,17 @@ VALID_ANSWERS = {
 }
 
 
+# FAIR is assessed by F-UJI and consumed here; it is NOT re-derived from the
+# checklist. These four dimensions are read from the F-UJI result and combined
+# with the checklist's AI Readiness and Responsible Licensing dimensions.
+FAIR_DIMENSIONS = {
+    "findable": "Findable",
+    "accessible": "Accessible",
+    "interoperable": "Interoperable",
+    "reusable": "Reusable"
+}
+
+
 class FAIRR2LScorer:
     def __init__(
         self,
@@ -119,6 +130,18 @@ class FAIRR2LScorer:
                 section["id"]
             ] = section_result
 
+        # FAIR comes from F-UJI, not from the checklist (no double assessment).
+        # Prepend the four FAIR dimensions, read directly from the F-UJI result,
+        # so FAIR-R2L = FAIR (F-UJI) + AI Readiness + Responsible Licensing.
+        fair_sections, fair_source = self._fair_sections(
+            fair_result
+        )
+
+        ordered = {}
+        ordered.update(fair_sections)
+        ordered.update(sections)
+        sections = ordered
+
         readiness = self._overall_readiness(
             sections
         )
@@ -183,6 +206,7 @@ class FAIRR2LScorer:
         return {
             "score": readiness,
             "readiness": readiness,
+            "fair_source": fair_source,
             "completion": completion,
             "band": self._band(
                 readiness
@@ -264,6 +288,74 @@ class FAIRR2LScorer:
                 "institutional approval."
             )
         }
+
+    def _fair_sections(self, fair_result):
+        """Build the four FAIR dimension sections from the F-UJI result.
+
+        FAIR is assessed once, by F-UJI, and consumed here. When F-UJI is
+        unavailable, fair_scorer falls back to a transparent metadata estimate
+        with the same shape, so this still works; the source is flagged.
+        Returns (sections_dict, source_label). Empty dict if no FAIR data.
+        """
+        fair_result = fair_result or {}
+        dimensions = fair_result.get("dimensions") or {}
+
+        if not dimensions:
+            return {}, None
+
+        # A populated 'principles' map means F-UJI ran; the metadata fallback
+        # leaves it empty.
+        source = (
+            "f-uji"
+            if fair_result.get("principles")
+            else "metadata-fallback"
+        )
+
+        sections = {}
+
+        for key, title in FAIR_DIMENSIONS.items():
+            dim = dimensions.get(key) or {}
+            percent = dim.get("percent")
+
+            readiness = (
+                round(float(percent), 2)
+                if isinstance(percent, (int, float))
+                else None
+            )
+
+            sections[key] = {
+                "id": key,
+                "title": title,
+                "short_description": (
+                    "FAIR dimension assessed by F-UJI."
+                ),
+                "readiness": readiness,
+                "score": readiness,
+                "completion": (
+                    100 if readiness is not None else 0
+                ),
+                "level": (
+                    dim.get("level")
+                    or self._readiness_level(readiness)
+                ),
+                "source": source,
+                "fair_evidence": {
+                    "earned": dim.get("earned"),
+                    "total": dim.get("total"),
+                    "percent": percent,
+                    "maturity": dim.get("maturity"),
+                    "level": dim.get("level")
+                },
+                "checks": [],
+                "yes": None,
+                "no": None,
+                "not_assessed": 0,
+                "not_applicable": 0,
+                "confirmed": 0,
+                "total_applicable": 0
+            }
+
+        return sections, source
 
     def _load_checklist(self):
         with open(

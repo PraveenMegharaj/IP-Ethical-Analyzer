@@ -1,7 +1,7 @@
 import re
 from urllib.parse import urlparse
 
-from analysis_core import analyze_full_text
+from config import ENABLE_TRUST_ANALYSIS
 
 
 URL_PATTERN = re.compile(
@@ -191,6 +191,19 @@ def analyze_trust(
     text,
     source_links
 ):
+    if not ENABLE_TRUST_ANALYSIS:
+        return {
+            "available": False,
+            "score": None,
+            "band": "disabled",
+            "note": (
+                "Trust / AI-generated-text analysis is out of the "
+                "resource-assessment scope and is currently parked "
+                "(set ENABLE_TRUST_ANALYSIS=true to enable)."
+            ),
+            "details": None
+        }
+
     text = str(
         text or ""
     ).strip()
@@ -208,6 +221,8 @@ def analyze_trust(
         }
 
     try:
+        from analysis_core import analyze_full_text
+
         details = analyze_full_text(
             text=text,
             source_links=source_links

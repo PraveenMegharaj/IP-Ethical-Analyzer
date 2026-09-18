@@ -4,7 +4,12 @@ import requests
 import html
 import inspect
 
-from analysis_core import analyze_full_text
+def analyze_full_text(**kwargs):
+    # Lazy import: the Trust / AI-text models are parked and heavy, so they
+    # load only if this legacy Streamlit analysis path is actually used.
+    from analysis_core import analyze_full_text as _analyze_full_text
+
+    return _analyze_full_text(**kwargs)
 
 st.set_page_config(
     page_title="Ethical Analyser",
