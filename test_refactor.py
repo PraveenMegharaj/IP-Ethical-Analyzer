@@ -29,6 +29,7 @@ def fuji(findable, accessible, interoperable, reusable, from_fuji=True):
         },
         # A populated 'principles' map signals a real F-UJI run.
         "principles": {"F1": {}} if from_fuji else {},
+        "is_estimate": (not from_fuji),
         "overall": {"percent": (findable + accessible + interoperable + reusable) / 4},
     }
 
@@ -72,6 +73,15 @@ check("overall drops when F-UJI drops", res2["readiness"] < res["readiness"])
 # --- 3. Metadata fallback is flagged ---------------------------------------
 res3 = scorer.score(ARTEFACT, fair_result=fuji(60, 60, 60, 60, from_fuji=False))
 check("metadata fallback flagged", res3["fair_source"] == "metadata-fallback")
+
+# --- 3b. Fallback reports dimensions as bare numbers, not dicts ------------
+resf = scorer.score(ARTEFACT, fair_result={
+    "dimensions": {"findable": 40.0, "accessible": 25.0,
+                   "interoperable": 0.0, "reusable": 0.0},
+    "is_estimate": True,
+})
+check("float-shaped FAIR dimension handled", resf["sections"]["findable"]["readiness"] == 40.0)
+check("float-shape flagged metadata-fallback", resf["fair_source"] == "metadata-fallback")
 
 # --- 4. Checklist no longer carries FAIR sections --------------------------
 cl_ids = [s["id"] for s in scorer.checklist["sections"]]

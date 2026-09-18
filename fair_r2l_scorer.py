@@ -306,16 +306,29 @@ class FAIRR2LScorer:
         # A populated 'principles' map means F-UJI ran; the metadata fallback
         # leaves it empty.
         source = (
-            "f-uji"
-            if fair_result.get("principles")
-            else "metadata-fallback"
+            "metadata-fallback"
+            if fair_result.get("is_estimate")
+            else "f-uji"
         )
 
         sections = {}
 
         for key, title in FAIR_DIMENSIONS.items():
-            dim = dimensions.get(key) or {}
-            percent = dim.get("percent")
+            dim = dimensions.get(key)
+
+            if isinstance(dim, dict):
+                percent = dim.get("percent")
+                if percent is None:
+                    percent = dim.get("score")
+                level = dim.get("level")
+                earned = dim.get("earned")
+                total = dim.get("total")
+                maturity = dim.get("maturity")
+            elif isinstance(dim, (int, float)):
+                percent = dim
+                level = earned = total = maturity = None
+            else:
+                percent = level = earned = total = maturity = None
 
             readiness = (
                 round(float(percent), 2)
@@ -335,16 +348,16 @@ class FAIRR2LScorer:
                     100 if readiness is not None else 0
                 ),
                 "level": (
-                    dim.get("level")
+                    level
                     or self._readiness_level(readiness)
                 ),
                 "source": source,
                 "fair_evidence": {
-                    "earned": dim.get("earned"),
-                    "total": dim.get("total"),
+                    "earned": earned,
+                    "total": total,
                     "percent": percent,
-                    "maturity": dim.get("maturity"),
-                    "level": dim.get("level")
+                    "maturity": maturity,
+                    "level": level
                 },
                 "checks": [],
                 "yes": None,

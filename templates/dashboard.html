@@ -1,352 +1,497 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReuseReady</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Hanken+Grotesk:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#F4F2EC; --surface:#FFFDFA; --surface-2:#ECE8DF; --surface-3:#E2DDD1;
+  --ink:#23302A; --ink-soft:#4E5B52; --ink-faint:#7E887E;
+  --line:#E4E0D6; --line-strong:#CCC7B9;
+  --produce:#2F6E5B; --produce-soft:#E2EFE9; --produce-line:#AECFC1;
+  --reuse:#B45A3C; --reuse-soft:#F5E7DE; --reuse-line:#E4C2B1;
+  --ai:#7A4A86; --ai-soft:#F0E8F2; --ai-line:#D8C1DE;
+  --good:#3C7A54; --good-soft:#E3EFE7; --warn:#A9720F; --warn-soft:#F4EBD6; --crit:#AF4339; --crit-soft:#F5E5E1;
+  --shadow:0 1px 2px rgba(35,48,42,.05), 0 12px 30px -18px rgba(35,48,42,.28);
+  --shadow-lift:0 3px 8px rgba(35,48,42,.09), 0 26px 52px -22px rgba(35,48,42,.34);
+  --r:13px; --ease:cubic-bezier(.22,.61,.36,1);
+}
+:root:not([data-theme="light"]){ @media (prefers-color-scheme: dark){
+  --paper:#12140F; --surface:#1B1E17; --surface-2:#23271E; --surface-3:#2E3327;
+  --ink:#ECEFE4; --ink-soft:#AEB6A6; --ink-faint:#828B7C;
+  --line:#2C3126; --line-strong:#3F4636;
+  --produce:#6FC79A; --produce-soft:#183227; --produce-line:#25503C;
+  --reuse:#E1926F; --reuse-soft:#33201A; --reuse-line:#5A362A;
+  --ai:#C9A2D4; --ai-soft:#2A1E30; --ai-line:#453353;
+  --good:#6FC79A; --good-soft:#173026; --warn:#DDA24E; --warn-soft:#2E2413; --crit:#E88B85; --crit-soft:#331A19;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 30px -18px rgba(0,0,0,.6);
+  --shadow-lift:0 3px 8px rgba(0,0,0,.5), 0 28px 56px -24px rgba(0,0,0,.72);
+}}
+:root[data-theme="dark"]{
+  --paper:#12140F; --surface:#1B1E17; --surface-2:#23271E; --surface-3:#2E3327;
+  --ink:#ECEFE4; --ink-soft:#AEB6A6; --ink-faint:#828B7C;
+  --line:#2C3126; --line-strong:#3F4636;
+  --produce:#6FC79A; --produce-soft:#183227; --produce-line:#25503C;
+  --reuse:#E1926F; --reuse-soft:#33201A; --reuse-line:#5A362A;
+  --ai:#C9A2D4; --ai-soft:#2A1E30; --ai-line:#453353;
+  --good:#6FC79A; --good-soft:#173026; --warn:#DDA24E; --warn-soft:#2E2413; --crit:#E88B85; --crit-soft:#331A19;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 30px -18px rgba(0,0,0,.6);
+  --shadow-lift:0 3px 8px rgba(0,0,0,.5), 0 28px 56px -24px rgba(0,0,0,.72);
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Hanken Grotesk",system-ui,-apple-system,sans-serif; font-size:15.5px; line-height:1.55; -webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Newsreader",Georgia,serif; margin:0; text-wrap:balance; line-height:1.16; font-weight:600}
+.mono{font-family:"Spline Sans Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums}
+button{font-family:inherit}
+a{color:var(--produce)}
+:focus-visible{outline:2px solid var(--produce); outline-offset:2px; border-radius:6px}
+.app{max-width:1000px; margin:0 auto; padding:0 20px}
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:14px; padding:16px 0; flex-wrap:wrap}
+.brand{display:flex; align-items:center; gap:11px}
+.logo{width:36px; height:36px; border-radius:11px; background:linear-gradient(135deg,var(--produce),var(--reuse)); display:grid; place-items:center; color:#fff; font-family:"Newsreader",serif; font-weight:600; font-size:19px; flex:none; box-shadow:var(--shadow)}
+.brand .nm{font-family:"Newsreader",serif; font-weight:600; font-size:18px; letter-spacing:-.01em}
+.brand .nm small{display:block; font-family:"Spline Sans Mono",monospace; font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-faint); font-weight:500}
+.topbar-r{display:flex; align-items:center; gap:9px; flex-wrap:wrap}
+.pill{font-family:"Spline Sans Mono",monospace; font-size:10.5px; letter-spacing:.05em; padding:5px 10px; border-radius:100px; border:1px solid var(--line-strong); color:var(--ink-soft); white-space:nowrap; background:var(--surface)}
+.pill.warn{color:var(--warn); background:var(--warn-soft); border-color:transparent}
+.iconbtn{cursor:pointer; background:var(--surface); border:1px solid var(--line-strong); color:var(--ink-soft); font-size:13.5px; height:36px; border-radius:10px; display:inline-flex; align-items:center; gap:7px; padding:0 12px; font-weight:600; transition:.15s}
+.iconbtn:hover{background:var(--surface-2); color:var(--ink)}
+.iconbtn .i{width:18px;height:18px;border-radius:50%;border:1.5px solid currentColor;display:grid;place-items:center;font-size:11px;font-style:italic;font-family:"Newsreader",serif}
+.tt{width:36px; justify-content:center; padding:0}
 
-    <title>Ethical Analyser</title>
+.view{display:none} .view.on{display:block; animation:fade .35s var(--ease) both}
+@keyframes fade{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+.eyebrow{font-family:"Spline Sans Mono",monospace; font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:10px}
+.h-lg{font-size:clamp(1.7rem,4vw,2.4rem); letter-spacing:-.01em}
+.sub{color:var(--ink-soft); max-width:64ch; margin-top:8px}
+.tag{font-family:"Spline Sans Mono",monospace; font-size:10px; letter-spacing:.05em; font-weight:600; padding:2px 8px; border-radius:100px; text-transform:uppercase; white-space:nowrap; display:inline-flex; align-items:center; gap:5px}
+.tag.ai{color:var(--ai); background:var(--ai-soft); border:1px solid var(--ai-line)}
+.tag.reuse{color:var(--reuse); background:var(--reuse-soft); border:1px solid var(--reuse-line)}
+.tag.produce{color:var(--produce); background:var(--produce-soft); border:1px solid var(--produce-line)}
+.tag.src{color:var(--ink-faint); background:var(--surface-2); border:1px solid var(--line-strong)}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow)}
+.pad{padding:22px}
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='dashboard.css') }}"
-    >
+/* landing */
+.intro{display:flex; gap:14px; align-items:flex-start; background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--produce); border-radius:12px; padding:16px 18px; margin-top:20px; box-shadow:var(--shadow)}
+.intro .ii{flex:none; width:34px;height:34px;border-radius:9px;background:var(--produce-soft);color:var(--produce);display:grid;place-items:center;font-family:"Newsreader",serif;font-style:italic;font-weight:600;font-size:18px}
+.intro p{margin:0; font-size:13.5px; color:var(--ink-soft); line-height:1.55} .intro p b{color:var(--ink)}
+.field{margin-top:22px}
+.flabel{display:flex; align-items:center; gap:9px; font-weight:600; font-size:14px; margin-bottom:9px; flex-wrap:wrap}
+.flabel .hint{font-weight:400; color:var(--ink-faint); font-size:12.5px}
+textarea, input.txt, select{width:100%; font-family:inherit; font-size:15px; color:var(--ink); background:var(--surface); border:1px solid var(--line-strong); border-radius:12px; padding:13px 15px; line-height:1.55; transition:border-color .2s, box-shadow .2s}
+textarea{min-height:110px; resize:vertical}
+textarea:focus, input.txt:focus, select:focus{border-color:var(--produce); outline:none; box-shadow:0 0 0 3px var(--produce-soft)}
+.linkrow{display:flex; gap:8px; margin-bottom:9px}
+.linkrow input{flex:1}
+.linkrow .rm{flex:none; width:44px; border:1px solid var(--line-strong); background:var(--surface); border-radius:11px; color:var(--ink-faint); cursor:pointer; font-size:16px}
+.addlink{background:none; border:1px dashed var(--line-strong); color:var(--ink-soft); border-radius:11px; padding:10px 14px; font-size:13px; font-weight:600; cursor:pointer; width:100%}
+.addlink:hover{border-color:var(--produce); color:var(--produce)}
+.rolewrap{display:flex; gap:10px; margin-top:8px; flex-wrap:wrap}
+.roleopt{flex:1; min-width:200px; border:1px solid var(--line-strong); border-radius:12px; padding:12px 14px; cursor:pointer; background:var(--surface)}
+.roleopt.sel{border-color:var(--produce); background:var(--produce-soft)}
+.roleopt .rt{font-weight:600; font-size:14px} .roleopt .rd{font-size:12px; color:var(--ink-soft); margin-top:2px}
+.btnrow{display:flex; gap:12px; align-items:center; margin-top:22px; flex-wrap:wrap}
+.btn{font-size:14.5px; font-weight:600; padding:13px 22px; border-radius:11px; border:1px solid transparent; cursor:pointer; display:inline-flex; align-items:center; gap:9px; transition:transform .12s, filter .15s}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--produce); color:#fff; box-shadow:var(--shadow)} .btn.primary:hover{filter:brightness(1.06)}
+.btn.ghost{background:var(--surface); color:var(--ink); border-color:var(--line-strong)}
+.btn[disabled]{opacity:.55; cursor:not-allowed}
+.example-note{font-size:12px; color:var(--ink-faint)}
+
+/* loading */
+.loadwrap{max-width:520px; margin:6vh auto; text-align:center}
+.orb{width:64px;height:64px;margin:0 auto 20px;border-radius:50%;background:conic-gradient(var(--produce),var(--reuse),var(--ai),var(--produce));animation:spin 1.1s linear infinite;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 8px),#000 0);mask:radial-gradient(farthest-side,transparent calc(100% - 8px),#000 0)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loadsteps{display:flex;flex-direction:column;gap:9px;text-align:left;margin-top:22px}
+.ls{display:flex;align-items:center;gap:12px;padding:12px 15px;border-radius:11px;background:var(--surface);border:1px solid var(--line);font-size:13.5px;color:var(--ink-soft)}
+.ls .d{width:8px;height:8px;border-radius:50%;background:var(--produce)}
+
+/* sections */
+.section{margin-top:30px}
+.sectionhead{display:flex; align-items:baseline; gap:12px; margin-bottom:14px; padding-bottom:10px; border-bottom:2px solid var(--line)}
+.sectionhead .sk{font-family:"Spline Sans Mono",monospace; font-size:12px; font-weight:600; color:var(--produce); background:var(--produce-soft); border:1px solid var(--produce-line); width:26px; height:26px; border-radius:8px; display:grid; place-items:center; flex:none}
+.sectionhead h2{font-size:1.2rem}
+.sectionhead .sx{font-size:12.5px; color:var(--ink-faint); margin-left:auto; text-align:right; max-width:42ch}
+
+.reshead{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.restitle{font-size:1.3rem; margin-top:10px}
+.metagrid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:16px}
+.mgroup{background:var(--surface-2); border:1px solid var(--line); border-radius:12px; padding:14px}
+.mgroup .mgh{font-family:"Spline Sans Mono",monospace; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); font-weight:600; margin-bottom:10px}
+.mrow{display:flex; justify-content:space-between; gap:12px; font-size:13px; padding:4px 0}
+.mrow .ml{color:var(--ink-faint)} .mrow .mv{color:var(--ink); font-weight:500; text-align:right; word-break:break-word}
+.notice{font-size:12.5px; color:var(--ink-soft); background:var(--warn-soft); border-radius:10px; padding:11px 14px; margin-top:14px}
+
+.rgrid{display:grid; grid-template-columns:1fr 1.4fr; gap:16px; align-items:start}
+.readiness{text-align:center; padding:22px}
+.gauge{--v:0; --c:var(--warn); width:136px; height:136px; border-radius:50%; margin:4px auto 12px; background:conic-gradient(var(--c) calc(var(--v)*1%), var(--surface-3) 0); display:grid; place-items:center; position:relative}
+.gauge::before{content:""; position:absolute; inset:12px; border-radius:50%; background:var(--surface)}
+.gauge .gv{position:relative; font-family:"Newsreader",serif; font-size:2rem; font-weight:600}
+.gauge .gv small{display:block; font-family:"Spline Sans Mono",monospace; font-size:10px; letter-spacing:.1em; color:var(--ink-faint); text-transform:uppercase; margin-top:-3px}
+.band{display:inline-flex; align-items:center; gap:7px; font-weight:600; font-size:13.5px; padding:7px 15px; border-radius:100px}
+.band.good{color:var(--good); background:var(--good-soft)} .band.warn{color:var(--warn); background:var(--warn-soft)} .band.crit{color:var(--crit); background:var(--crit-soft)}
+.meaning{font-size:12.5px; color:var(--ink-soft); margin-top:14px; line-height:1.5; text-align:left; background:var(--surface-2); border-radius:10px; padding:12px 14px}
+.contribs{display:flex; flex-direction:column; gap:15px}
+.contrib .ct{display:flex; justify-content:space-between; align-items:baseline; font-size:14px; font-weight:600; margin-bottom:6px; gap:8px}
+.contrib .ct .pct{font-family:"Spline Sans Mono",monospace; font-size:12.5px}
+.meter{height:9px; background:var(--surface-3); border-radius:100px; overflow:hidden}
+.meter i{display:block; height:100%; border-radius:100px; width:0; transition:width .9s var(--ease)}
+.contrib .why{font-size:12px; color:var(--ink-soft); margin-top:6px; line-height:1.5}
+.howrow{display:flex; gap:9px; align-items:flex-start; margin-top:16px; font-size:12.5px; color:var(--ink-soft); background:var(--surface-2); border-radius:10px; padding:12px 14px; line-height:1.5}
+.howrow b{color:var(--ink)}
+.dimrow{display:grid; grid-template-columns:1fr auto auto; gap:10px; align-items:center; padding:9px 0; border-bottom:1px solid var(--line); font-size:13.5px}
+.dimrow:last-child{border-bottom:none}
+.dimrow .dl{display:flex; align-items:center; gap:8px}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+.lvl{font-family:"Spline Sans Mono",monospace; font-size:11px; padding:2px 8px; border-radius:100px; font-weight:600}
+
+.licence-line{background:var(--produce-soft); border:1px solid var(--produce-line); border-radius:12px; padding:16px 18px}
+.licence-line.none{background:var(--warn-soft); border-color:transparent}
+.licence-line .lt{font-family:"Spline Sans Mono",monospace; font-size:12px; color:var(--produce); font-weight:600; letter-spacing:.04em; margin-bottom:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.licence-line.none .lt{color:var(--warn)}
+.licence-line .ls{font-size:15px; color:var(--ink); line-height:1.55}
+.perm{display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-top:16px}
+.permitem{display:flex; align-items:center; gap:9px; font-size:13px; background:var(--surface); border:1px solid var(--line); border-radius:9px; padding:9px 12px}
+.permitem .pi{width:20px;height:20px;border-radius:6px;flex:none;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff}
+.permitem .pi.y{background:var(--good)} .permitem .pi.n{background:var(--crit)} .permitem .pi.r{background:var(--warn)} .permitem .pi.u{background:var(--ink-faint)}
+.permitem b{color:var(--ink); font-weight:600}
+.rnote{display:flex; gap:11px; align-items:flex-start; font-size:13px; color:var(--ink-soft); line-height:1.5; margin-top:11px}
+.rnote .ri{flex:none; width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-size:12px; background:var(--surface-2)}
+.rnote b{color:var(--ink)}
+
+.flags{display:flex; flex-direction:column; gap:10px}
+.flag{display:flex; gap:11px; align-items:flex-start; padding:12px 14px; border-radius:11px; font-size:13px; line-height:1.45}
+.flag.warn{background:var(--warn-soft)} .flag.info{background:var(--surface-2)} .flag.good{background:var(--good-soft)} .flag.crit{background:var(--crit-soft)}
+.flag .fi{flex:none; font-size:15px; margin-top:1px} .flag b{color:var(--ink)}
+
+.plangrid{display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start}
+.checkl{display:flex; flex-direction:column; gap:10px}
+.chk{display:flex; gap:11px; align-items:flex-start; font-size:13.5px; color:var(--ink-soft)}
+.chk .box{width:19px;height:19px;border-radius:5px;border:1.5px solid var(--produce);flex:none;margin-top:1px;display:grid;place-items:center;color:var(--produce);font-size:12px;font-weight:700;background:var(--produce-soft)}
+.lic{border:1px solid var(--line-strong); border-radius:12px; padding:14px 16px; margin-bottom:11px}
+.lic .ln{display:flex; justify-content:space-between; align-items:center; gap:10px; font-weight:600}
+.lic .ln .rec{font-family:"Spline Sans Mono",monospace; font-size:10px; color:var(--produce); background:var(--surface); border:1px solid var(--produce-line); padding:2px 7px; border-radius:100px}
+.lic .ld{font-size:12.5px; color:var(--ink-soft); margin-top:5px; line-height:1.45}
+.navrow{display:flex; justify-content:space-between; gap:12px; margin-top:24px; flex-wrap:wrap}
+.errbox{background:var(--crit-soft); border:1px solid var(--crit); border-radius:12px; padding:16px 18px; color:var(--crit); font-size:14px; margin-top:20px}
+
+.legend-foot{display:flex; gap:9px 18px; flex-wrap:wrap; margin-top:26px; padding-top:16px; border-top:1px solid var(--line); font-size:12px; color:var(--ink-faint)}
+.legend-foot .li{display:inline-flex; align-items:center; gap:7px}
+.sw{width:11px;height:11px;border-radius:3px;flex:none}
+footer.discl{padding:24px 0 60px; font-size:12px; color:var(--ink-faint); line-height:1.6; max-width:74ch}
+
+.modal{position:fixed; inset:0; background:rgba(10,16,12,.55); display:none; align-items:center; justify-content:center; padding:20px; z-index:60}
+.modal.show{display:flex; animation:fade .25s var(--ease) both}
+.modalcard{background:var(--surface); border:1px solid var(--line-strong); border-radius:18px; max-width:560px; width:100%; box-shadow:var(--shadow-lift); max-height:88vh; overflow:auto}
+.modalcard .mh{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:20px 22px 0}
+.modalcard h3{font-size:1.3rem}
+.modalcard .close{cursor:pointer; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink-soft); width:32px;height:32px;border-radius:9px; font-size:16px}
+.modalcard .mb{padding:14px 22px 22px}
+.modalcard .mb p{font-size:13.5px; color:var(--ink-soft); line-height:1.6; margin:0 0 12px} .modalcard .mb p b{color:var(--ink)}
+.steplist{display:flex; flex-direction:column; gap:9px; margin:4px 0 14px}
+.sli{display:flex; gap:11px; align-items:flex-start; font-size:13px; color:var(--ink-soft)}
+.sli .sn2{width:22px;height:22px;border-radius:7px;background:var(--produce-soft);color:var(--produce);border:1px solid var(--produce-line);display:grid;place-items:center;font-family:"Spline Sans Mono",monospace;font-size:11px;font-weight:600;flex:none}
+.disclaimer{display:flex; gap:10px; align-items:flex-start; background:var(--warn-soft); border-radius:11px; padding:12px 14px; font-size:12.5px; color:var(--ink-soft); line-height:1.5}
+.disclaimer b{color:var(--warn)}
+@media (max-width:760px){ .rgrid,.plangrid,.metagrid,.perm{grid-template-columns:1fr} .sectionhead .sx{display:none} }
+@media (prefers-reduced-motion:reduce){ *{animation-duration:.001s !important; transition-duration:.001s !important} .orb{animation:none} }
+</style>
 </head>
-
 <body>
-    <main class="page-shell">
-        <header class="topbar">
-            <div class="brand">
-                <div class="logo">
-                    EA
-                </div>
+<div class="app">
+  <div class="topbar">
+    <div class="brand"><div class="logo">R</div><div class="nm">ReuseReady<small>IP4OS project</small></div></div>
+    <div class="topbar-r">
+      <button class="iconbtn" id="about"><span class="i">i</span>What is this?</button>
+      <span class="pill warn">Draft · not legal advice</span>
+      <button class="iconbtn tt" id="tt" aria-label="Toggle colour theme">◐</button>
+    </div>
+  </div>
 
-                <div>
-                    <h1>
-                        Ethical Analyser
-                    </h1>
+  <!-- LANDING -->
+  <section class="view on" id="vLanding">
+    <div class="eyebrow">Assess a resource</div>
+    <h1 class="h-lg">Is this resource FAIR, licensed and safe to reuse?</h1>
+    <p class="sub">Describe what you're doing and paste the dataset, DOI or repository links you want assessed. We read the description only to guide the check — we assess the resources you link.</p>
+    <div class="intro">
+      <div class="ii">i</div>
+      <p><b>ReuseReady</b> checks whether a research resource is <b>FAIR, responsibly licensed and safe to reuse</b>, and helps you publish your own so others can reuse it. All scoring is rule-based (FAIR via the F-UJI standard); AI is used only to word the explanations. It produces a draft — not legal advice. <button id="about2" style="background:none;border:none;color:var(--produce);font-weight:600;cursor:pointer;padding:0;font-size:13.5px">How it works →</button></p>
+    </div>
+    <div class="card pad" style="margin-top:18px">
+      <div class="field" style="margin-top:0">
+        <div class="flabel">Your scenario <span class="hint">— plain language is fine</span></div>
+        <textarea id="scenario" placeholder="e.g. I want to reuse this dataset to train a small model, then publish my cleaned version so others can reuse it. What am I allowed to do, and what licence should I attach?"></textarea>
+      </div>
+      <div class="field">
+        <div class="flabel">Resources to assess <span class="hint">— DOI, dataset or repository links</span></div>
+        <div id="links"><div class="linkrow"><input class="txt" placeholder="https://doi.org/10.5281/zenodo.XXXXXXX" aria-label="Resource link 1"><button class="rm" type="button" aria-label="Remove">×</button></div></div>
+        <button class="addlink" id="addlink" type="button">+ Add another resource</button>
+      </div>
+      <div class="field">
+        <div class="flabel">What are you doing with it?</div>
+        <div class="rolewrap">
+          <div class="roleopt sel" data-role="reuser"><div class="rt">Reusing it</div><div class="rd">Using someone else's resource — what am I allowed to do?</div></div>
+          <div class="roleopt" data-role="producer"><div class="rt">Producing / publishing it</div><div class="rd">Sharing my own resource — how open, what licence?</div></div>
+        </div>
+      </div>
+      <div class="btnrow"><button class="btn primary" id="analyse">Analyse →</button><span class="example-note" id="landingNote">Runs against the live assessment pipeline.</span></div>
+    </div>
+  </section>
 
-                    <p>
-                        Trust, FAIRness and responsible reuse
-                    </p>
-                </div>
-            </div>
+  <!-- LOADING -->
+  <section class="view" id="vLoading">
+    <div class="loadwrap">
+      <div class="orb"></div>
+      <h2 style="font-size:1.4rem">Assessing the resource…</h2>
+      <p class="sub" style="margin:8px auto 0">Fixed rules and standard services do the work — no AI in the scoring.</p>
+      <div class="loadsteps">
+        <div class="ls"><span class="d"></span>Reading the resource metadata (Zenodo · DataCite · Crossref)</div>
+        <div class="ls"><span class="d"></span>Assessing FAIR (F-UJI) and the FAIR-R²L layer</div>
+        <div class="ls"><span class="d"></span>Reading the declared licence &amp; building your plan</div>
+      </div>
+    </div>
+  </section>
 
-            <nav
-                class="main-tabs"
-                aria-label="Dashboard sections"
-            >
-                <button
-                    class="main-tab active"
-                    data-tab="analyse"
-                    type="button"
-                >
-                    Analyse
-                </button>
+  <!-- RESULTS -->
+  <section class="view" id="vResults"></section>
 
-                <button
-                    class="main-tab"
-                    data-tab="reuse"
-                    type="button"
-                >
-                    Reuse Advisor
-                </button>
+  <div class="legend-foot">
+    <span class="li"><span class="sw" style="background:var(--produce)"></span>Producing</span>
+    <span class="li"><span class="sw" style="background:var(--reuse)"></span>Reusing</span>
+    <span class="li"><span class="sw" style="background:var(--ai)"></span>AI-assisted (wording only)</span>
+    <span class="li"><span class="sw" style="background:var(--good)"></span>Good</span>
+    <span class="li"><span class="sw" style="background:var(--warn)"></span>Needs attention</span>
+    <span class="li"><span class="sw" style="background:var(--crit)"></span>Blocker</span>
+  </div>
+  <footer class="discl">ReuseReady — IP4OS project prototype. Scores are rule-based (FAIR via F-UJI); AI only writes explanations. The tool produces a draft for discussion with a qualified IP or legal advisor — never a legal determination. British English throughout.</footer>
+</div>
 
-                <button
-                    class="main-tab"
-                    data-tab="checklist"
-                    type="button"
-                >
-                    FAIR-R²L Checklist
-                </button>
-            </nav>
-        </header>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modaltitle">
+  <div class="modalcard">
+    <div class="mh"><h3 id="modaltitle">What is ReuseReady?</h3><button class="close" id="closeModal" aria-label="Close">×</button></div>
+    <div class="mb">
+      <p>A guided assistant that checks whether a <b>research resource</b> — a dataset, DOI or repository link — is <b>FAIR, responsibly licensed and safe to reuse</b>, and helps you publish your own resources so others can reuse them. Built on the IP4OS Knowledge Valorisation framework.</p>
+      <div class="steplist">
+        <div class="sli"><span class="sn2">1</span><div><b>Describe</b> — write your scenario and paste the resource links.</div></div>
+        <div class="sli"><span class="sn2">2</span><div><b>Assess</b> — FAIR (via the F-UJI standard) plus AI Readiness and Responsible Licensing, and the declared licence.</div></div>
+        <div class="sli"><span class="sn2">3</span><div><b>Plan</b> — the metadata to add, licence guidance and next steps.</div></div>
+      </div>
+      <p><b>Where AI is used:</b> only to word the explanations — never to decide the scores. Everything that determines FAIRness, rights or reuse is a fixed, traceable rule.</p>
+      <div class="disclaimer"><span style="font-size:15px">⚠</span><div><b>Not legal advice.</b> Results are a draft to discuss with a qualified IP or legal advisor.</div></div>
+    </div>
+  </div>
+</div>
 
-        <section
-            id="analyseTab"
-            class="tab-panel active"
-        >
-            <section class="intro-card">
-                <div>
-                    <span class="eyebrow">
-                        Analyse
-                    </span>
+<script>
+(function(){
+  var root=document.documentElement;
+  var role="reuser";
+  var $=function(s,el){return (el||document).querySelector(s);};
+  var $$=function(s,el){return [].slice.call((el||document).querySelectorAll(s));};
+  function show(id){ $$(".view").forEach(function(v){v.classList.toggle("on",v.id===id);}); window.scrollTo({top:0,behavior:"smooth"}); }
+  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function num(v){ return (typeof v==="number" && isFinite(v)) ? v : null; }
+  function pct(v){ v=num(v); return v==null?"—":Math.round(v)+"%"; }
+  function colorFor(v){ v=num(v); if(v==null)return "var(--ink-faint)"; return v>=75?"var(--good)":v>=50?"var(--warn)":"var(--crit)"; }
+  function avg(a){ a=a.filter(function(x){return num(x)!=null;}); return a.length? a.reduce(function(s,x){return s+x;},0)/a.length : null; }
 
-                    <h2>
-                        Paste text, a DOI or a repository link
-                    </h2>
+  // links add/remove
+  var links=$("#links");
+  $("#addlink").addEventListener("click",function(){ var row=document.createElement("div"); row.className="linkrow"; row.innerHTML='<input class="txt" placeholder="Paste a DOI, dataset or repository link" aria-label="Resource link"><button class="rm" type="button" aria-label="Remove">×</button>'; links.appendChild(row); row.querySelector("input").focus(); });
+  links.addEventListener("click",function(e){ if(e.target.classList.contains("rm")){ if(links.querySelectorAll(".linkrow").length>1) e.target.closest(".linkrow").remove(); } });
+  $$(".roleopt").forEach(function(o){ o.addEventListener("click",function(){ $$(".roleopt").forEach(function(x){x.classList.remove("sel");}); o.classList.add("sel"); role=o.dataset.role; }); });
 
-                    <p>
-                        The overview stays simple. Technical
-                        evidence is available under each
-                        information section.
-                    </p>
-                </div>
+  // theme + modal
+  var tt=$("#tt");
+  function cur(){ var e=root.getAttribute("data-theme"); return e?e:(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"); }
+  tt.addEventListener("click",function(){ var n=cur()==="dark"?"light":"dark"; root.setAttribute("data-theme",n); try{localStorage.setItem("rr-theme",n);}catch(e){} });
+  try{ var s=localStorage.getItem("rr-theme"); if(s) root.setAttribute("data-theme",s); }catch(e){}
+  var modal=$("#modal");
+  function openM(){modal.classList.add("show");} function closeM(){modal.classList.remove("show");}
+  $("#about").addEventListener("click",openM); $("#about2").addEventListener("click",openM); $("#closeModal").addEventListener("click",closeM);
+  modal.addEventListener("click",function(e){ if(e.target===modal) closeM(); });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeM(); });
 
-                <form
-                    id="analysisForm"
-                    class="analysis-form"
-                >
-                    <textarea
-                        id="analysisInput"
-                        placeholder="Paste AI text, DOI or resource URL..."
-                        required
-                    ></textarea>
+  // analyse
+  $("#analyse").addEventListener("click",function(){
+    var scenario=$("#scenario").value.trim();
+    var urls=$$("#links input").map(function(i){return i.value.trim();}).filter(Boolean);
+    if(!scenario && !urls.length){ $("#landingNote").textContent="Add a link or describe your scenario first."; $("#landingNote").style.color="var(--crit)"; return; }
+    var payload={ input: urls[0]||"", text: (urls.length? "": scenario), source_links: urls.slice(1), role: role, user_input: urls[0]||scenario };
+    if(!urls.length){ payload.input=scenario; payload.text=scenario; }
+    show("vLoading");
+    fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)})
+      .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw new Error(j.error||("HTTP "+r.status)); return j; }); })
+      .then(function(data){ renderResults(data); show("vResults"); })
+      .catch(function(err){ renderError(err.message||String(err)); show("vResults"); });
+  });
 
-                    <div class="form-row">
-                        <select
-                            id="userRole"
-                            aria-label="Reuse perspective"
-                        >
-                            <option value="reuser">
-                                I want to reuse a resource
-                            </option>
+  function renderError(msg){
+    $("#vResults").innerHTML='<div class="eyebrow">Assessment</div><h1 class="h-lg">Something went wrong</h1>'+
+      '<div class="errbox">'+esc(msg)+'</div>'+
+      '<div class="navrow"><button class="btn ghost" id="back1">← Back</button></div>';
+    $("#back1").addEventListener("click",function(){ show("vLanding"); });
+  }
 
-                            <option value="producer">
-                                I created the resource
-                            </option>
-                        </select>
+  function bandClass(label,overall){
+    var l=(label||"").toLowerCase();
+    if(l.indexOf("not recommend")>=0||l.indexOf("blocker")>=0) return "crit";
+    if(l.indexOf("ready")>=0) return "good";
+    var v=num(overall); if(v!=null){ if(v>=75)return "good"; if(v>=50)return "warn"; }
+    return "warn";
+  }
+  function permIcon(v){ if(v===true)return '<span class="pi y">✓</span>'; if(v===false)return '<span class="pi n">✗</span>'; return '<span class="pi u">?</span>'; }
 
-                        <button
-                            class="primary-button"
-                            type="submit"
-                        >
-                            Analyse
-                        </button>
-                    </div>
+  function renderResults(data){
+    var res=(data.resources&&data.resources[0])||{};
+    var art=res.artefact||{};
+    var f2=res.fair_r2l||{};
+    var lic=res.licence||{};
+    var secs=f2.sections||{};
+    var isReuse = (data.request&&data.request.role||role)!=="producer";
+    var roleTag = isReuse? '<span class="tag reuse">Reusing</span>' : '<span class="tag produce">Producing</span>';
 
-                    <details class="optional-inputs">
-                        <summary>
-                            Add source links
-                        </summary>
+    var fairR=avg(["findable","accessible","interoperable","reusable"].map(function(k){return secs[k]&&secs[k].readiness;}));
+    var aiR=secs.ai_readiness&&secs.ai_readiness.readiness;
+    var rlR=secs.responsible_licensing&&secs.responsible_licensing.readiness;
+    var overall=num(f2.readiness);
+    var fairSrc=f2.fair_source;
+    var srcLabel = fairSrc==="f-uji" ? "F-UJI" : (fairSrc==="metadata-fallback" ? "metadata estimate" : "—");
 
-                        <textarea
-                            id="sourceLinks"
-                            class="small-textarea"
-                            placeholder="One source URL per line"
-                        ></textarea>
-                    </details>
-                </form>
-            </section>
+    var title=art.title || "This resource";
+    var thin = !art.title && !art.authors.length && !lic.detected;
 
-            <section
-                id="loadingPanel"
-                class="state-card hidden"
-            >
-                <div class="spinner"></div>
+    // metadata rows
+    function mrow(l,v){ return '<div class="mrow"><span class="ml">'+l+'</span><span class="mv">'+esc(v||"—")+'</span></div>'; }
+    var authors=(art.authors||[]).slice(0,3).join("; ")+((art.authors||[]).length>3?" +":"");
+    var files=(art.files||[]).length;
+    var formats=[].concat.apply([],(art.files||[]).map(function(f){return (f&&f.format)?[f.format]:[];})); formats=Array.from(new Set(formats)).join(", ");
 
-                <div>
-                    <strong>
-                        Analysing...
-                    </strong>
+    var meta='<div class="metagrid">'+
+      '<div class="mgroup"><div class="mgh">Identity</div>'+mrow("DOI",art.doi)+mrow("Version",art.version)+mrow("Published",art.publication_date)+mrow("Creators",authors)+'</div>'+
+      '<div class="mgroup"><div class="mgh">Content</div>'+mrow("Type",art.kind)+mrow("Formats",formats)+mrow("Files",files||"—")+mrow("Keywords",(art.keywords||[]).slice(0,4).join(", "))+'</div>'+
+      '<div class="mgroup"><div class="mgh">Access &amp; rights</div>'+mrow("Access",art.access_right)+mrow("Licence",art.licence_string||lic.name)+mrow("Publisher",art.publisher)+mrow("Machine-readable",art.metadata_machine_readable?"Yes":"No")+'</div>'+
+    '</div>';
 
-                    <p>
-                        This may take longer when F-UJI is running.
-                    </p>
-                </div>
-            </section>
+    // contributors
+    function contrib(label,val,src,why){
+      var v=num(val);
+      return '<div class="contrib"><div class="ct"><span>'+label+(src?' <span class="tag src">'+src+'</span>':'')+'</span><span class="pct" style="color:'+colorFor(v)+'">'+pct(v)+'</span></div>'+
+        '<div class="meter"><i style="width:'+(v==null?0:v)+'%;background:'+colorFor(v)+'"></i></div>'+
+        (why?'<div class="why">'+why+'</div>':'')+'</div>';
+    }
+    var contribs=contrib("FAIR",fairR,srcLabel,"How we got it: the four FAIR dimensions, assessed by "+esc(srcLabel)+".")+
+      contrib("AI Readiness",aiR,"checklist","How we got it: machine-readability, AI-use suitability, stewardship — from the checklist.")+
+      contrib("Responsible Licensing &amp; Reuse",rlR,"checklist","How we got it: the declared licence and reuse conditions.");
 
-            <section
-                id="errorPanel"
-                class="state-card error hidden"
-            >
-                <strong>
-                    Analysis failed
-                </strong>
+    // FAIR dims detail
+    function dimr(k,label){ var s=secs[k]||{}; var v=num(s.readiness); return '<div class="dimrow"><span class="dl"><span class="dot" style="background:'+colorFor(v)+'"></span>'+label+'</span><span class="mono" style="color:var(--ink-faint)">'+pct(v)+'</span><span class="lvl" style="color:'+colorFor(v)+';background:var(--surface-2)">'+esc(s.level||"—")+'</span></div>'; }
+    var dims=dimr("findable","Findable")+dimr("accessible","Accessible")+dimr("interoperable","Interoperable")+dimr("reusable","Reusable");
 
-                <p id="errorMessage"></p>
-            </section>
+    // licence / rights
+    var rightsHtml;
+    if(lic.detected){
+      rightsHtml='<div class="licence-line"><div class="lt">Declared licence: '+esc(lic.name||lic.spdx_id||"detected")+(lic.spdx_id?' <span class="tag src">'+esc(lic.spdx_id)+'</span>':'')+'</div><div class="ls">'+esc(lic.plain_english||"A licence was detected in the metadata.")+'</div></div>'+
+        '<div class="perm">'+
+          '<div class="permitem">'+permIcon(true)+'<div><b>Share</b> — redistribute</div></div>'+
+          '<div class="permitem">'+permIcon(lic.adaptations)+'<div><b>Adapt</b> — remix, build on</div></div>'+
+          '<div class="permitem">'+permIcon(lic.commercial)+'<div><b>Commercial use</b></div></div>'+
+          '<div class="permitem">'+(lic.attribution?'<span class="pi r">!</span>':permIcon(lic.attribution))+'<div><b>Attribution</b> '+(lic.attribution?'— required':'')+'</div></div>'+
+          '<div class="permitem">'+permIcon(lic.ai_training)+'<div><b>AI / ML reuse</b></div></div>'+
+        '</div>'+
+        '<div class="rnote"><span class="ri">✕</span><div><b>What this does not tell you:</b> a licence grants permission over rights that already exist — it does not establish who owns the copyright. That stays with a qualified advisor.</div></div>';
+    } else {
+      rightsHtml='<div class="licence-line none"><div class="lt">No licence detected</div><div class="ls">'+esc(lic.plain_english||"No licence information was found in the metadata. Reuse permissions cannot be determined from the metadata alone.")+'</div></div>'+
+        '<div class="rnote"><span class="ri">i</span><div>'+esc(lic.disclaimer||"The absence of a detected licence does not mean the resource is free to reuse.")+'</div></div>';
+    }
 
-            <section
-                id="emptyPanel"
-                class="empty-card"
-            >
-                <div class="empty-icon">
-                    EA
-                </div>
+    // things to check
+    var flags="";
+    (data.warnings||[]).forEach(function(w){
+      var c=w.level==="warning"?"warn":(w.level==="info"?"info":"good");
+      flags+='<div class="flag '+c+'"><span class="fi">'+(c==="warn"?"▲":(c==="info"?"›":"✓"))+'</span><div><b>'+esc(w.title)+'.</b> '+esc(w.message)+'</div></div>';
+    });
+    (f2.pending_critical_reviews||[]).slice(0,3).forEach(function(p){
+      flags+='<div class="flag warn"><span class="fi">▲</span><div><b>Confirm (critical):</b> '+esc(p.text)+'</div></div>';
+    });
+    if(!flags) flags='<div class="flag good"><span class="fi">✓</span><div>No blocking issues flagged.</div></div>';
 
-                <h2>
-                    No analysis yet
-                </h2>
+    // plan
+    var recs=(f2.recommendations||[]).slice(0,6);
+    var planChecks = recs.length? recs.map(function(r){return '<div class="chk"><span class="box">+</span><div>'+esc(r)+'</div></div>';}).join("")
+      : '<div class="chk"><span class="box">+</span><div>Add a clear licence and a plain-language reuse statement.</div></div><div class="chk"><span class="box">+</span><div>Document provenance, collection method and intended use.</div></div>';
 
-                <p>
-                    Enter text or a research-resource link above.
-                </p>
-            </section>
+    var licOptions = isReuse
+      ? '<div class="lic"><div class="ln">Match the source licence <span class="rec">Recommended</span></div><div class="ld">When you republish a derivative, keep a licence compatible with the source\'s terms, and carry attribution over.</div></div>'
+      : '<div class="lic"><div class="ln">CC BY 4.0 <span class="rec">Recommended</span></div><div class="ld">Broad reuse with attribution — the simplest open choice for a new resource.</div></div>'+
+        '<div class="lic"><div class="ln">CC BY-SA 4.0</div><div class="ld">Same, but downstream users must keep it open too.</div></div>'+
+        '<div class="lic"><div class="ln">CC0 1.0</div><div class="ld">Maximum reuse, no conditions — only if you don\'t need attribution.</div></div>';
 
-            <section
-                id="resultsArea"
-                class="hidden"
-            >
-                <div class="section-title">
-                    <div>
-                        <span class="eyebrow">
-                            Overview
-                        </span>
+    var html=
+      '<div class="eyebrow">Assessment <span class="tag ai" style="vertical-align:middle">AI · explains · rules decide</span></div>'+
+      '<h1 class="h-lg">Where this resource stands</h1>'+
+      '<p class="sub">Grouped into four parts: what we assessed, how ready it is, your rights to reuse it, and what to check. Every score comes from fixed rules — AI only writes the explanations.</p>'+
 
-                        <h2>
-                            What the assessment found
-                        </h2>
-                    </div>
-                </div>
+      // A
+      '<div class="section"><div class="sectionhead"><span class="sk">A</span><h2>What we assessed</h2><span class="sx">The resource behind your link, and the metadata we read from it.</span></div>'+
+      '<div class="card pad"><div class="reshead">'+roleTag+'<span class="tag src">'+esc(art.kind||"resource")+'</span>'+(art.licence_string?'<span class="tag src">'+esc(art.licence_string)+'</span>':'')+'</div>'+
+      '<h3 class="restitle">'+esc(title)+'</h3>'+ meta +
+      (thin?'<div class="notice">Only limited metadata was found for this resource. On a machine with full internet access (and F-UJI running) the assessment will be richer — this is still a valid, if sparse, result.</div>':'')+
+      '</div></div>'+
 
-                <div
-                    id="overviewGrid"
-                    class="overview-grid"
-                ></div>
+      // B
+      '<div class="section"><div class="sectionhead"><span class="sk">B</span><h2>How ready it is to reuse</h2><span class="sx">One readiness score, from FAIR + AI Readiness + Responsible Licensing.</span></div>'+
+      '<div class="rgrid"><div class="card readiness"><div class="eyebrow">Overall readiness</div>'+
+      '<div class="gauge" id="gauge"><span class="gv"><span id="gnum">0</span><small>/100</small></span></div>'+
+      '<span class="band '+bandClass(f2.classification_label,overall)+'">● '+esc(f2.classification_label||"Assessed")+'</span>'+
+      '<div class="meaning"><b>What this means:</b> '+esc(meaningText(overall,f2.classification_label))+'</div></div>'+
+      '<div class="card pad"><div class="eyebrow" style="margin-bottom:14px">FAIR-R²L readiness — the integrated IP4OS layer</div>'+
+      '<div class="contribs">'+contribs+'</div>'+
+      '<div class="howrow"><span class="tag src">Method</span><span><b>How the overall number is built:</b> the six dimensions are averaged with equal weight into <b>'+pct(overall)+'</b>. FAIR comes from '+esc(srcLabel)+'; the checklist adds AI Readiness and Responsible Licensing. A transparent prototype estimate, not an official IP4OS score.</span></div>'+
+      '<div class="dimtable" style="margin-top:14px"><div class="eyebrow" style="margin:6px 0">FAIR detail (from '+esc(srcLabel)+')</div>'+dims+'</div>'+
+      '</div></div></div>'+
 
-                <section
-                    id="warningSection"
-                    class="warning-section hidden"
-                >
-                    <h3>
-                        Important points
-                    </h3>
+      // C
+      '<div class="section"><div class="sectionhead"><span class="sk">C</span><h2>Rights, licensing &amp; reuse</h2><span class="sx">What the licence lets you do — and what it doesn\'t establish.</span></div>'+
+      '<div class="card pad">'+rightsHtml+'</div></div>'+
 
-                    <div id="warningList"></div>
-                </section>
+      // D
+      '<div class="section"><div class="sectionhead"><span class="sk">D</span><h2>Things to check</h2><span class="sx">Human judgement the rules flag but can\'t decide.</span></div>'+
+      '<div class="card pad"><div class="flags">'+flags+'</div></div></div>'+
 
-                <section
-                    id="detailsPanel"
-                    class="details-panel hidden"
-                ></section>
-            </section>
-        </section>
+      // PLAN
+      '<div class="section"><div class="sectionhead"><span class="sk">✓</span><h2>Suggestions &amp; plan</h2><span class="sx">A starting point — take it to your advisor, or act on the clear parts now.</span></div>'+
+      '<div class="plangrid"><div class="card pad"><div class="eyebrow" style="margin-bottom:12px">What to improve / add</div><div class="checkl">'+planChecks+'</div></div>'+
+      '<div class="card pad"><div class="eyebrow" style="margin-bottom:12px">Licence guidance</div>'+licOptions+'<div class="rnote" style="margin-top:4px"><span class="ri" style="background:var(--ai-soft);color:var(--ai)">AI</span><div>These are planning suggestions, not a legal determination.</div></div></div></div></div>'+
 
-        <section
-            id="reuseTab"
-            class="tab-panel"
-        >
-            <section class="intro-card compact">
-                <div>
-                    <span class="eyebrow">
-                        Reuse Advisor
-                    </span>
+      '<div class="navrow"><button class="btn ghost" id="backL">← Assess another</button><span class="example-note">Report is a draft “for discussion with your advisor.”</span></div>';
 
-                    <h2>
-                        Understand what you may do next
-                    </h2>
+    $("#vResults").innerHTML=html;
+    $("#backL").addEventListener("click",function(){ show("vLanding"); });
+    // animate gauge
+    var g=$("#gauge"), gnum=$("#gnum"); var target=overall==null?0:overall;
+    g.style.setProperty("--c", colorFor(target));
+    var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(reduce){ g.style.setProperty("--v",target); gnum.textContent=Math.round(target); }
+    else { var t0=null; requestAnimationFrame(function step(ts){ if(!t0)t0=ts; var p=Math.min(1,(ts-t0)/900); var e=1-Math.pow(1-p,3); g.style.setProperty("--v",(target*e).toFixed(1)); gnum.textContent=Math.round(target*e); if(p<1)requestAnimationFrame(step); }); }
+  }
 
-                    <p>
-                        Review an analysed resource or plan
-                        how to publish a new one.
-                    </p>
-                </div>
-            </section>
-
-            <nav
-                class="sub-tabs"
-                aria-label="Reuse Advisor modes"
-            >
-                <button
-                    class="sub-tab active"
-                    data-reuse-view="reviewer"
-                    type="button"
-                >
-                    Reviewer
-                </button>
-
-                <button
-                    class="sub-tab"
-                    data-reuse-view="brainstormer"
-                    type="button"
-                >
-                    Brainstormer
-                </button>
-            </nav>
-
-            <section
-                id="reviewerView"
-                class="reuse-view active"
-            >
-                <div
-                    id="reviewerContent"
-                    class="content-card"
-                ></div>
-            </section>
-
-            <section
-                id="brainstormerView"
-                class="reuse-view"
-            >
-                <div class="content-card">
-                    <span class="eyebrow">
-                        Creator support
-                    </span>
-
-                    <h2>
-                        Describe what you want to share
-                    </h2>
-
-                    <textarea
-                        id="brainstormDescription"
-                        placeholder="Example: I created a dataset and Python code and want to publish them for research reuse."
-                    ></textarea>
-
-                    <div class="button-row">
-                        <button
-                            id="clarifyBrainstormBtn"
-                            class="secondary-button"
-                            type="button"
-                        >
-                            Ask useful questions
-                        </button>
-
-                        <button
-                            id="generateStrategyBtn"
-                            class="primary-button fit"
-                            type="button"
-                        >
-                            Create sharing plan
-                        </button>
-                    </div>
-
-                    <div id="brainstormQuestions"></div>
-                    <div id="brainstormResult"></div>
-                </div>
-            </section>
-        </section>
-
-        <section
-            id="checklistTab"
-            class="tab-panel"
-        >
-            <section class="intro-card compact">
-                <div>
-                    <span class="eyebrow">
-                        FAIR-R²L Checklist
-                    </span>
-
-                    <h2>
-                        Confirm the evidence and complete the review
-                    </h2>
-
-                    <p>
-                        System suggestions save time. You remain
-                        responsible for the final answers.
-                    </p>
-                </div>
-            </section>
-
-            <section
-                id="checklistContent"
-                class="content-card"
-            ></section>
-        </section>
-
-        <footer>
-            Automated guidance only. Factual, legal, ethical
-            and institutional review may still be required.
-        </footer>
-    </main>
-
-    <script
-        src="{{ url_for('static', filename='dashboard.js') }}"
-    ></script>
+  function meaningText(overall,label){
+    var v=num(overall);
+    if((label||"").toLowerCase().indexOf("not recommend")>=0) return "there is a blocking issue — resolve it before reusing or republishing this resource.";
+    if(v==null) return "there isn't enough metadata yet to judge readiness — add the details flagged below, or run with F-UJI for a fuller picture.";
+    if(v>=75) return "this resource is in good shape to reuse — check the few items flagged below and you're set.";
+    if(v>=50) return "you can reuse this, but it isn't fully reuse-ready — fix the flagged gaps before you republish your own version.";
+    return "reuse-readiness is low — the resource is missing key metadata and/or licence clarity; see the suggestions below.";
+  }
+})();
+</script>
 </body>
-
 </html>
