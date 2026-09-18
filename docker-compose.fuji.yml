@@ -3,10 +3,15 @@ services:
     image: ghcr.io/pangaea-data-publisher/fuji:latest
     container_name: ethical-analyser-fuji
     restart: unless-stopped
-
+    platform: linux/amd64
+    entrypoint: ["/bin/sh", "-c", "playwright install --with-deps chromium && exec python3 -m fuji_server -c fuji_server/config/server.ini"]
     ports:
       - "127.0.0.1:1071:1071"
-
     environment:
       ENABLE_CORS: "true"
       TIKA_LOG_PATH: "/tmp"
+    volumes:
+      - fuji-playwright:/root/.cache/ms-playwright
+
+volumes:
+  fuji-playwright:
