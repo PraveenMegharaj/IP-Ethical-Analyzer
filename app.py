@@ -77,8 +77,8 @@ div.block-container {
     padding-bottom: 1rem !important;
     padding-left: 0.6rem !important;
     padding-right: 0.6rem !important;
-    max-width: calc(100vw - 64px) !important;
-    width: calc(100vw - 64px) !important;
+    max-width: none !important;
+    width: 100% !important;
 }
             
 /* Reduce Streamlit's default vertical gaps */

@@ -48,8 +48,9 @@ button {
 }
 
 .page-shell {
-    width: min(1420px, calc(100% - 40px));
-    margin: 0 auto;
+    width: 100%;
+    max-width: none;
+    margin: 0;
     padding: 16px 0 28px;
 }
 
@@ -176,7 +177,7 @@ button {
 }
 
 .intro-card p {
-    max-width: 760px;
+    max-width: none;
     margin-top: 8px;
     color: var(--muted);
     font-size: 14px;
